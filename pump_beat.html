@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PUMP BEAT — 5-Key Rhythm</title>
+<style>
+:root{--bg:#090d18;--panel:#141b2c;--cyan:#69e4ff;--pink:#ff5ea8;--gold:#ffe46b;--text:#f4f7ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#202a49,#090d18 68%);color:var(--text);font-family:system-ui,Segoe UI,sans-serif;min-height:100vh;display:grid;place-items:center;padding:18px}
+.app{width:min(980px,100%)}header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{font-size:clamp(25px,5vw,42px);letter-spacing:.08em;margin:0}h1 span{color:var(--cyan)}.sub{color:#aebbd6;font-size:13px;margin-top:3px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:#141b2c;border:1px solid #35405d;border-radius:12px;padding:9px 14px;min-width:86px}.stat small{display:block;color:#9eabc6;font-size:10px;letter-spacing:.12em}.stat strong{font-size:20px}
+.game{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:14px}.stage{position:relative;overflow:hidden;border:1px solid #3a4564;border-radius:18px;background:linear-gradient(#10172a,#090d18);min-height:500px;box-shadow:0 18px 50px #0007}
+canvas{width:100%;height:100%;position:absolute;inset:0}.overlay{position:absolute;inset:0;display:grid;place-items:center;background:#070b16b8;backdrop-filter:blur(5px);padding:22px;text-align:center}.overlay.hidden{display:none}.modal{max-width:390px}.modal h2{font-size:28px;margin:0 0 8px}.modal p{color:#bac5dc;line-height:1.5}.btn{border:0;border-radius:12px;background:linear-gradient(135deg,#6de7ff,#8a9cff);color:#07101f;font-weight:900;font-size:15px;padding:13px 22px;cursor:pointer;box-shadow:0 5px 22px #69e4ff33}.btn:focus-visible{outline:3px solid white;outline-offset:3px}.chooser{display:grid;gap:9px;text-align:left;margin:16px 0}.chooser label{font-size:11px;color:#aebbd6;letter-spacing:.1em;font-weight:800}.chooser select{width:100%;padding:11px;border-radius:10px;border:1px solid #43516f;background:#111a2e;color:#f4f7ff;font:inherit}
+.side{background:#141b2c;border:1px solid #303b57;border-radius:18px;padding:16px}.side h3{margin:0 0 10px;font-size:14px;letter-spacing:.12em}.keyrow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #29324a}.key{width:37px;height:37px;display:grid;place-items:center;border-radius:9px;background:#202b43;border:1px solid #51617f;font-weight:900}.arrow{font-size:20px;color:var(--cyan);width:24px;text-align:center}.keyrow span:last-child{font-size:12px;color:#d4dcef}.help{font-size:12px;color:#aab7d1;line-height:1.5;margin-top:15px}.feedback{height:30px;text-align:center;font-weight:900;letter-spacing:.12em;color:var(--gold);margin:10px 0 0}.bottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#8f9db9;font-size:12px;margin-top:12px}.mobilekeys{display:none;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:12px}.mobilekeys button{padding:12px 0;border:1px solid #43516f;border-radius:10px;background:#1b2540;color:white;font-size:17px;font-weight:900}
+@media(max-width:720px){.game{grid-template-columns:1fr}.stage{min-height:440px}.side{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:9px}.side h3,.help{display:none}.keyrow{border:0;display:flex;flex-direction:column;gap:4px;padding:4px}.key{width:34px;height:34px}.keyrow span:last-child{font-size:10px}.mobilekeys{display:grid}}
+
+.kpop-library{background:#141b2c;border:1px solid #35405d;border-radius:16px;padding:15px;margin-bottom:14px}
+.library-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.library-head h2{margin:0;font-size:19px}.library-head p{margin:4px 0 0;color:#aebbd6;font-size:12px}
+.library-controls{display:grid;grid-template-columns:1.2fr 1fr;gap:8px;margin:13px 0}.library-controls input,.library-controls select{min-width:0;width:100%;padding:11px 12px;background:#0c1222;color:#f4f7ff;border:1px solid #465474;border-radius:10px;font:inherit}
+.song-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-height:290px;overflow:auto;padding:1px}.song-card{background:#0e1526;border:1px solid #2d3954;border-radius:11px;padding:10px;min-width:0}.song-card.active{border-color:#69e4ff;box-shadow:inset 0 0 0 1px #69e4ff55}.song-card strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.song-card small{display:block;color:#aebbd6;margin:3px 0 8px;font-size:11px}.song-actions{display:flex;gap:6px}.song-actions button,.song-actions a{font:700 11px system-ui;border:1px solid #465474;background:#202b43;color:#f4f7ff;border-radius:7px;padding:6px 8px;text-decoration:none;cursor:pointer}.song-actions .playchart{background:#d7f8ff;color:#09121e;border-color:#d7f8ff}.library-note{font-size:11px;color:#98a7c5;line-height:1.45;margin:10px 0 0}
+@media(max-width:720px){.song-list{grid-template-columns:repeat(2,minmax(0,1fr))}.library-controls{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="app">
+<header><div><h1><span>PUMP</span> BEAT</h1><div class="sub">5-PANEL RHYTHM CHALLENGE • INSPIRED BY ARCADE DANCE PADS</div></div>
+<div class="stats"><div class="stat"><small>SCORE</small><strong id="score">0</strong></div><div class="stat"><small>COMBO</small><strong id="combo">0</strong></div><div class="stat"><small>ACCURACY</small><strong id="acc">100%</strong></div></div></header>
+
+<section class="kpop-library" aria-label="K-pop song library">
+<div class="library-head"><div><h2>🎤 K-POP FULL MODE</h2><p id="songCount">Search songs and groups</p></div><div style="font-size:12px;color:#69e4ff;font-weight:800">Q E Z S C • 5 PANELS</div></div>
+<div class="library-controls"><input id="songSearch" type="search" placeholder="Search song or group…" aria-label="Search songs or groups"><select id="groupFilter" aria-label="Filter by group"><option value="">All groups</option></select></div>
+<div class="song-list" id="songList"></div>
+<p class="library-note">Song charts are generated gameplay patterns. “Official music” searches YouTube for official uploads; playback and availability depend on the rights holder. Unofficial fan-made game, not affiliated with artists or labels.</p>
+</section>
+\n<section class="game"><div><div class="stage" id="stage"><canvas id="game"></canvas><div class="overlay" id="overlay"><div class="modal"><h2 id="modalTitle">READY TO DANCE?</h2><p id="modalText">Choose a track and difficulty, then hit the panels in time. Full Mode uses all five panels.</p>
+<div class="chooser"><div><label for="song">SELECT TRACK</label><select id="song"><option value="neon">Neon Rush · 128 BPM</option><option value="starlight">Starlight Drive · 112 BPM</option><option value="voltage">Voltage Breaker · 145 BPM</option><option value="pixel">Pixel Parade · 100 BPM</option><option value="skyline">Skyline Sprint · 160 BPM</option><option value="moon">Moonlight Circuit · 90 BPM</option><option value="comet">Comet Fever · 135 BPM</option><option value="arcade">Arcade Infinity · 175 BPM</option></select></div><div><label for="difficulty">DIFFICULTY</label><select id="difficulty"><option value="easy">Easy</option><option value="normal" selected>Normal</option><option value="hard">Hard</option><option value="crazy">Crazy</option></select></div><div><label for="mode">GAME MODE</label><select id="mode"><option value="full" selected>Full Mode · 5 panels</option></select></div></div>
+<button class="btn" id="start">START GAME</button></div></div></div><div class="feedback" id="feedback">READY?</div></div>
+<aside class="side"><h3>YOUR CONTROLS</h3>
+<div class="keyrow"><div class="arrow">↖</div><div class="key">Q</div><span>Upper left</span></div>
+<div class="keyrow"><div class="arrow">↗</div><div class="key">E</div><span>Upper right</span></div>
+<div class="keyrow"><div class="arrow">↙</div><div class="key">Z</div><span>Lower left</span></div>
+<div class="keyrow"><div class="arrow">↘</div><div class="key">C</div><span>Lower right</span></div>
+<div class="keyrow"><div class="arrow" style="color:var(--gold)">★</div><div class="key">S</div><span>Center panel</span></div>
+<div class="help">Hit arrows near the target line. Closer timing earns higher scores. Misses reset your combo. Press <b>Esc</b> to pause.</div></aside></section>
+<div class="mobilekeys"><button data-key="q">Q ↖</button><button data-key="e">E ↗</button><button data-key="z">Z ↙</button><button data-key="s">S ★</button><button data-key="c">C ↘</button></div>
+<div class="bottom"><span>Keyboard: Q · E · Z · S · C</span><span>Original generated beat • No downloads or accounts needed</span></div>
+</main>
+<script>
+
+const kpopSongs = [
+["BTS","Dynamite",114],["BTS","Butter",110],["BTS","MIC Drop",130],["BTS","IDOL",126],["BTS","DNA",130],["BTS","Run BTS",126],
+["BLACKPINK","DDU-DU DDU-DU",140],["BLACKPINK","How You Like That",130],["BLACKPINK","Kill This Love",132],["BLACKPINK","BOOMBAYAH",125],["BLACKPINK","Pink Venom",90],["BLACKPINK","Shut Down",110],
+["TWICE","The Feels",120],["TWICE","What Is Love?",142],["TWICE","Fancy",132],["TWICE","Talk that Talk",120],["TWICE","I CAN'T STOP ME",150],["TWICE","Feel Special",120],
+["Stray Kids","God's Menu",126],["Stray Kids","MANIAC",120],["Stray Kids","S-Class",100],["Stray Kids","Thunderous",130],["Stray Kids","Back Door",107],["Stray Kids","Chk Chk Boom",130],
+["aespa","Drama",128],["aespa","Supernova",120],["aespa","Next Level",109],["aespa","Armageddon",130],["aespa","Spicy",115],["aespa","Black Mamba",90],
+["NewJeans","Super Shy",150],["NewJeans","ETA",130],["NewJeans","Hype Boy",100],["NewJeans","OMG",127],["NewJeans","Attention",100],["NewJeans","Ditto",134],
+["SEVENTEEN","Super",130],["SEVENTEEN","HOT",120],["SEVENTEEN","Very Nice",122],["SEVENTEEN","Rock with you",130],["SEVENTEEN","MAESTRO",120],["SEVENTEEN","Left & Right",130],
+["ENHYPEN","Bite Me",110],["ENHYPEN","Drunk-Dazed",110],["ENHYPEN","Fever",130],["ENHYPEN","Sweet Venom",110],["ENHYPEN","Future Perfect (Pass the MIC)",130],
+["LE SSERAFIM","ANTIFRAGILE",105],["LE SSERAFIM","EASY",100],["LE SSERAFIM","UNFORGIVEN",105],["LE SSERAFIM","CRAZY",110],["LE SSERAFIM","Perfect Night",105],
+["IVE","LOVE DIVE",116],["IVE","After LIKE",125],["IVE","I AM",122],["IVE","Baddie",160],["IVE","HEYA",125],
+["ITZY","WANNABE",122],["ITZY","LOCO",128],["ITZY","DALLA DALLA",125],["ITZY","CAKE",124],["ITZY","Not Shy",101],
+["EXO","Love Shot",72],["EXO","Monster",112],["EXO","Growl",120],["EXO","Ko Ko Bop",156],
+["Red Velvet","Psycho",140],["Red Velvet","Bad Boy",150],["Red Velvet","Feel My Rhythm",120],["Red Velvet","Red Flavor",125],
+["ATEEZ","Guerrilla",120],["ATEEZ","BOUNCY (K-HOT CHILLI PEPPERS)",100],["ATEEZ","Crazy Form",130],["ATEEZ","WONDERLAND",100],
+["NCT 127","Kick It",100],["NCT 127","Fact Check",120],["NCT DREAM","ISTJ",130],["NCT DREAM","Candy",120],
+["TXT","0X1=LOVESONG",120],["TXT","Sugar Rush Ride",125],["TXT","Deja Vu",100],["TXT","CROWN",130],
+["BIGBANG","Fantastic Baby",130],["BIGBANG","BANG BANG BANG",130],["BIGBANG","HARU HARU",100],
+["Girls' Generation","Gee",100],["Girls' Generation","The Boys",120],["SHINee","Ring Ding Dong",120],["SHINee","View",125],
+["(G)I-DLE","Queencard",130],["(G)I-DLE","TOMBOY",124],["KISS OF LIFE","Midas Touch",120],["BABYMONSTER","SHEESH",140],
+["ILLIT","Magnetic",131],["RIIZE","Get A Guitar",120],["ZEROBASEONE","In Bloom",125],["MONSTA X","Shoot Out",120],
+["MAMAMOO","HIP",105],["KARA","STEP",128],["2NE1","I Am the Best",128],["Wonder Girls","Nobody",130]
+];
+const songSearch=document.getElementById('songSearch'),groupFilter=document.getElementById('groupFilter'),songList=document.getElementById('songList'),songCount=document.getElementById('songCount');
+let selectedSong=kpopSongs[0];
+const groups=[...new Set(kpopSongs.map(s=>s[0]))].sort((a,b)=>a.localeCompare(b));
+groups.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;groupFilter.appendChild(o)});
+function renderSongs(){
+ const q=songSearch.value.trim().toLowerCase(),g=groupFilter.value;
+ const results=kpopSongs.filter(s=>(!g||s[0]===g)&&(!q||(s[0]+' '+s[1]).toLowerCase().includes(q)));
+ songCount.textContent=results.length+' songs shown • '+groups.length+' groups in starter library';
+ songList.replaceChildren();
+ if(!results.length){songList.textContent='No matches. Try another song or group.';return}
+ results.forEach(s=>{
+  const card=document.createElement('article');card.className='song-card'+(selectedSong===s?' active':'');
+  const title=document.createElement('strong');title.textContent=s[1];
+  const meta=document.createElement('small');meta.textContent=s[0]+' • '+s[2]+' BPM';
+  const actions=document.createElement('div');actions.className='song-actions';
+  const play=document.createElement('button');play.className='playchart';play.textContent='Play chart';play.onclick=()=>{selectedSong=s;spawnAt=0;notes=[];elapsed=0;renderSongs();document.getElementById('feedback').textContent='CHART: '+s[1].toUpperCase();if(!running)start();};
+  const official=document.createElement('a');official.textContent='Official music';official.href='https://www.youtube.com/results?search_query='+encodeURIComponent(s[0]+' '+s[1]+' official music video');official.target='_blank';official.rel='noopener noreferrer';
+  actions.append(play,official);card.append(title,meta,actions);songList.append(card);
+ });
+}
+songSearch.addEventListener('input',renderSongs);groupFilter.addEventListener('change',renderSongs);renderSongs();
+
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),stage=document.getElementById('stage');
+const scoreEl=document.getElementById('score'),comboEl=document.getElementById('combo'),accEl=document.getElementById('acc'),feedback=document.getElementById('feedback'),overlay=document.getElementById('overlay'),startBtn=document.getElementById('start');
+const lanes=[{key:'q',label:'↖',color:'#ff5ea8'},{key:'e',label:'↗',color:'#ff5ea8'},{key:'z',label:'↙',color:'#69e4ff'},{key:'c',label:'↘',color:'#69e4ff'},{key:'s',label:'★',color:'#ffe46b'}];
+let W=600,H=500,dpr=1,running=false,paused=false,last=0,elapsed=0,spawnAt=0,notes=[],score=0,combo=0,judged=0,hit=0,misses=0,flash={},audio=null,beatTimer=0;
+const tracks={neon:{name:'Neon Rush',bpm:128,seed:1},starlight:{name:'Starlight Drive',bpm:112,seed:2},voltage:{name:'Voltage Breaker',bpm:145,seed:3},pixel:{name:'Pixel Parade',bpm:100,seed:4},skyline:{name:'Skyline Sprint',bpm:160,seed:5},moon:{name:'Moonlight Circuit',bpm:90,seed:6},comet:{name:'Comet Fever',bpm:135,seed:7},arcade:{name:'Arcade Infinity',bpm:175,seed:8}};
+let selectedTrack=tracks.neon, difficulty='normal';
+const duration=60,travel=2.15,targetY=H-100;
+function resize(){const r=stage.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+new ResizeObserver(resize).observe(stage);resize();
+function target(){return H-94}
+function lanePos(i){if(i===4)return {x:W/2,y:target()-5};let xs=[W*.23,W*.77,W*.23,W*.77],ys=[target()-72,target()-72,target()-10,target()-10];return{x:xs[i],y:ys[i]}}
+function rounded(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function drawPanel(i,x,y,size,alpha=1,glow=false){const l=lanes[i];ctx.save();ctx.globalAlpha=alpha;ctx.shadowColor=l.color;ctx.shadowBlur=glow?22:0;ctx.fillStyle='#131d32';ctx.strokeStyle=l.color;ctx.lineWidth=3;rounded(x-size/2,y-size/2,size,size,12);ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle=l.color;ctx.font=`900 ${size*.56}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(l.label,x,y+1);ctx.restore()}
+function draw(now){ctx.clearRect(0,0,W,H);let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111a30');g.addColorStop(1,'#080c16');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='#26324d';ctx.lineWidth=1;for(let y=25;y<H;y+=35){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+ctx.fillStyle='#a9b9d9';ctx.font='800 11px system-ui';ctx.textAlign='center';ctx.fillText('HIT THE PANELS',W/2,24);
+const ty=target();ctx.strokeStyle='#ffe46b88';ctx.lineWidth=2;ctx.setLineDash([7,7]);ctx.beginPath();ctx.moveTo(12,ty);ctx.lineTo(W-12,ty);ctx.stroke();ctx.setLineDash([]);
+for(let i=0;i<5;i++){let p=lanePos(i);drawPanel(i,p.x,p.y,i===4?58:55,.72,flash[i]>now)}
+for(const n of notes){const p=lanePos(n.lane),y=ty-(n.time-elapsed)/travel*(ty-38);if(y<25||y>H+20)continue;drawPanel(n.lane,p.x,y,n.lane===4?43:40,1,false)}
+if(!running&&!paused){ctx.fillStyle='#c5d1e8';ctx.font='12px system-ui';ctx.fillText('Q E   /   Z C   /   S CENTER',W/2,H-25)}
+}
+function spawn(){let lane=Math.floor(Math.random()*5);const roll=Math.random();if(difficulty==='easy'&&roll<.35)lane=4;else if(notes.length&&roll<.35)lane=notes[notes.length-1].lane===4?Math.floor(Math.random()*4):4;notes.push({lane,time:elapsed+travel,done:false});if(difficulty==='hard'&&Math.random()<.24)notes.push({lane:(lane+1+Math.floor(Math.random()*3))%5,time:elapsed+travel+.04,done:false});if(difficulty==='crazy'&&Math.random()<.55)notes.push({lane:(lane+1+Math.floor(Math.random()*3))%5,time:elapsed+travel+.03,done:false})}
+function updateStats(){scoreEl.textContent=score.toLocaleString();comboEl.textContent=combo;accEl.textContent=(judged?Math.max(0,Math.round(hit/judged*100)):100)+'%'}
+function beep(freq=440,dur=.07,type='sine',vol=.04){if(!audio)return;let o=audio.createOscillator(),gain=audio.createGain();o.type=type;o.frequency.value=freq;gain.gain.setValueAtTime(vol,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+dur);o.connect(gain);gain.connect(audio.destination);o.start();o.stop(audio.currentTime+dur)}
+function start(){audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();selectedTrack=tracks[document.getElementById('song').value]||tracks.neon;difficulty=document.getElementById('difficulty').value;score=combo=judged=hit=misses=0;elapsed=0;spawnAt=.5;notes=[];last=performance.now();running=true;paused=false;overlay.classList.add('hidden');feedback.textContent=selectedTrack.name.toUpperCase()+' • GO!';updateStats();requestAnimationFrame(loop)}
+function end(){running=false;overlay.classList.remove('hidden');document.getElementById('modalTitle').textContent='NICE RUN!';document.getElementById('modalText').textContent=`${selectedTrack.name} • ${selectedTrack.bpm} BPM • Score: ${score.toLocaleString()} • Accuracy: ${judged?Math.round(hit/judged*100):100}%. Pick another track or replay!`;startBtn.textContent='PLAY AGAIN';feedback.textContent='FINISH!'}
+function loop(now){if(!running)return;let dt=Math.min((now-last)/1000,.05);last=now;elapsed+=dt;if(elapsed>=duration){draw(now);end();return}if(elapsed>=spawnAt){spawn();const diffFactor={easy:1.3,normal:1,hard:.76,crazy:.58}[difficulty]||1;spawnAt+=Math.max(.25,(60/selectedTrack.bpm)*2.0*diffFactor);if(Math.random()<.2)spawnAt-=.12}
+notes=notes.filter(n=>{if(!n.done&&n.time-elapsed<-.22){n.done=true;misses++;judged++;combo=0;feedback.textContent='MISS';feedback.style.color='#ff6b80';beep(120,.1,'triangle',.025);updateStats()}return !n.done});draw(now);requestAnimationFrame(loop)}
+function press(key){key=key.toLowerCase();let lane=lanes.findIndex(l=>l.key===key);if(lane<0)return;if(!running){if(key===' '||key==='enter')start();return}const now=elapsed;let best=null,delta=Infinity;for(const n of notes){if(n.lane!==lane||n.done)continue;let d=Math.abs(n.time-now);if(d<delta){delta=d;best=n}}if(best&&delta<.42){best.done=true;judged++;hit++;combo++;let points=delta<.12?300:delta<.23?180:100;score+=points+Math.min(combo,50)*2;flash[lane]=performance.now()+150;feedback.textContent=delta<.12?'PERFECT!':delta<.23?'GREAT!':'GOOD!';feedback.style.color=delta<.12?'#ffe46b':'#69e4ff';beep([523,659,784,988][Math.min(combo%4,3)],.075,'triangle',.04);updateStats()}else{feedback.textContent='KEEP THE BEAT';feedback.style.color='#aab7d1';beep(180,.045,'sine',.018)}}
+startBtn.addEventListener('click',start);document.addEventListener('keydown',e=>{if(['q','e','z','s','c'].includes(e.key.toLowerCase())){e.preventDefault();if(!e.repeat)press(e.key)}if(e.key==='Escape'&&running){running=false;paused=true;overlay.classList.remove('hidden');document.getElementById('modalTitle').textContent='PAUSED';document.getElementById('modalText').textContent='Take a breather, then jump back into the beat.';startBtn.textContent='RESUME';startBtn.onclick=()=>{overlay.classList.add('hidden');running=true;paused=false;last=performance.now();requestAnimationFrame(loop);startBtn.onclick=start}}});
+document.querySelectorAll('[data-key]').forEach(b=>{b.addEventListener('pointerdown',()=>press(b.dataset.key))});
+draw(0);
+})();
+</script></body></html>
